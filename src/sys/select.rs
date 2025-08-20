@@ -22,7 +22,8 @@ pub struct FdSet<'fd> {
 
 fn assert_fd_valid(fd: RawFd) {
     assert!(
-        usize::try_from(fd).map_or(false, |fd| fd < FD_SETSIZE),
+        usize::try_from(fd)
+            .map_or(false, |fd| fd < FD_SETSIZE.try_into().unwrap()),
         "fd must be in the range 0..FD_SETSIZE",
     );
 }
@@ -110,7 +111,9 @@ impl<'fd> FdSet<'fd> {
     pub fn fds(&self, highest: Option<RawFd>) -> Fds<'_, '_> {
         Fds {
             set: self,
-            range: 0..highest.map(|h| h as usize + 1).unwrap_or(FD_SETSIZE),
+            range: 0..highest
+                .map(|h| h as usize + 1)
+                .unwrap_or(FD_SETSIZE.try_into().unwrap()),
         }
     }
 }
